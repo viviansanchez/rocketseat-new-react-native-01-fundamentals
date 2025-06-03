@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Image,
   View,
@@ -13,6 +13,7 @@ import { Filter } from "@/components/Filter";
 import { Item } from "@/components/Item";
 
 import { FilterStatus } from "@/types/filterStatus";
+import { itemsStorage, ItemStorage } from "@/storage/itemsStorage";
 
 import { styles } from "./styles";
 
@@ -21,7 +22,7 @@ const FILTER_STATUS: FilterStatus[] = [FilterStatus.PENDING, FilterStatus.DONE];
 export function Home() {
   const [filter, setFilter] = useState(FilterStatus.PENDING);
   const [description, setDescription] = useState("");
-  const [items, setItems] = useState<any>([]);
+  const [items, setItems] = useState<ItemStorage[]>([]);
 
   function handleAdd() {
     if (description.trim()) {
@@ -36,6 +37,20 @@ export function Home() {
 
     setItems((prevState) => [...prevState, newItem]);
   }
+
+  async function getItems() {
+    try {
+      const response = await itemsStorage.get();
+      setItems(response);
+    } catch (error) {
+      console.log(error);
+      Alert.alert("Erro", "Não foi possível fintrar os itens");
+    }
+  }
+
+  useEffect(() => {
+    getItems();
+  }, []);
 
   return (
     <View style={styles.container}>
